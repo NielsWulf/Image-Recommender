@@ -7,35 +7,38 @@ import cv2
 import pickle
 
 # Data Generator
-def find_image_files_with_metadata(root_dir: str, batch_size: int = 2000) -> Generator[List[Dict], None, None]:
+def find_image_files_with_metadata(root_dir: str, batch_size: int = 500, log_file: str = "processing_log.txt") -> Generator[List[Dict], None, None]:
     metadata_batch = []
-    for subdir, dirs, files in os.walk(root_dir):
-        for file in files:
-            if file.lower().endswith(('.jpg', '.jpeg', '.png')):
-                full_path = os.path.join(subdir, file)
-                image = cv2.imread(full_path)
-                if image is not None:
-                    try:
-                        height, width, _ = image.shape
+    with open(log_file, 'w') as log:
+        for subdir, dirs, files in os.walk(root_dir):
+            for file in files:
+                if file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    full_path = os.path.join(subdir, file)
+                    image = cv2.imread(full_path)
+                    if image is not None:
+                        try:
+                            height, width, _ = image.shape
 
-                        unique_id = str(uuid.uuid4())
-                        metadata_batch.append({
-                            'uuid': unique_id,
-                            'file_name': file,
-                            'file_path': full_path,
-                            'directory': subdir,
-                            'width': width,
-                            'height': height,
-                        })
-                    except Exception as e:
-                        print(f"Skipping file {full_path} due to error: {e}")
+                            unique_id = str(uuid.uuid4())
+                            metadata_batch.append({
+                                'uuid': unique_id,
+                                'file_name': file,
+                                'file_path': full_path,
+                                'directory': subdir,
+                                'width': width,
+                                'height': height,
+                            })
+                        except Exception as e:
+                            log.write(f"Error processing file {full_path}: {e}\n")
+                    else:
+                        log.write(f"Skipping file {full_path}: Unable to read image\n")
 
                     if len(metadata_batch) == batch_size:
                         yield metadata_batch
                         metadata_batch = []
 
-    if metadata_batch:
-        yield metadata_batch
+        if metadata_batch:
+            yield metadata_batch
 
 # Database Setup
 def setup_database(db_path: str):
@@ -78,6 +81,7 @@ if __name__ == "__main__":
     root_directory = "E:/data/image_data"
     database_path = "image_metadata.db"
     checkpoint_path = "checkpoint.pkl"
+    log_file = "processing_log.txt"
     
     setup_database(database_path)
 
@@ -87,7 +91,7 @@ if __name__ == "__main__":
     progress_bar = tqdm(total=total_images, desc="Processing Images", unit="image")
 
     processed_uuids = load_checkpoint(checkpoint_path)
-    metadata_generator = find_image_files_with_metadata(root_directory)
+    metadata_generator = find_image_files_with_metadata(root_directory, log_file=log_file)
     
     try:
         for metadata_batch in metadata_generator:
@@ -103,7 +107,8 @@ if __name__ == "__main__":
                 save_checkpoint(checkpoint_path, processed_uuids)
     
     except Exception as e:
-        print(f"An error occurred: {e}")
+        with open(log_file, 'a') as log:
+            log.write(f"An error occurred: {e}\n")
     
     progress_bar.close()
     
