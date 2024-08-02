@@ -1,0 +1,14 @@
+# Ignore all .pkl files
+*.pkl
+
+# Ignore common database files
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+*.sql
+
+# Ignore directories where databases are commonly stored
+db/
+database/
+databases/
