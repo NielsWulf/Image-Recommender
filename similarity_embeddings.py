@@ -34,7 +34,7 @@ def preprocess_image(image, preprocess, device):
     image_preprocessed = preprocess(image).unsqueeze(0).to(device)
     return image_preprocessed
 
-def generate_embeddings(db_path: str, batch_size: int, checkpoint_path: str):
+def generate_embeddings(db_path: str, batch_size: int, combined_pickle_path: str, checkpoint_path: str):
     print("Generating embeddings...")
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -61,7 +61,9 @@ def generate_embeddings(db_path: str, batch_size: int, checkpoint_path: str):
     rows = cursor.fetchall()
 
     total_images = len(rows)
-    progress_bar = tqdm(total=min(total_images, 150000), desc="Processing Images", unit="image")
+    progress_bar = tqdm(total=total_images, desc="Processing Images", unit="image")
+
+    combined_data = {}
 
     def process_batch(batch):
         metadata_batch = []
@@ -89,31 +91,30 @@ def generate_embeddings(db_path: str, batch_size: int, checkpoint_path: str):
         return metadata_batch
 
     try:
-        for start_idx in range(0, min(total_images, 150000), batch_size):
+        for start_idx in range(0, total_images, batch_size):
             batch = rows[start_idx:start_idx + batch_size]
             metadata_batch = process_batch(batch)
 
             if metadata_batch:
-                temp_file_name = f"embeddings_{uuid.uuid4()}.pkl"
-                save_to_pickle({meta['uuid']: meta['embedding'] for meta in metadata_batch}, temp_file_name)
-
+                combined_data.update({meta['uuid']: meta['embedding'] for meta in metadata_batch})
                 processed_uuids.update([meta['uuid'] for meta in metadata_batch])
                 save_checkpoint(checkpoint_path, processed_uuids)
 
                 progress_bar.update(len(metadata_batch))
-
                 del metadata_batch
                 gc.collect()
 
     except Exception as e:
         print(f"An error occurred: {e}")
 
+    save_to_pickle(combined_data, combined_pickle_path)
     progress_bar.close()
     conn.close()
 
 if __name__ == "__main__":
     db_path = "image_metadata.db"
     batch_size = 500
+    combined_pickle_path = "combined_embeddings.pkl"
     checkpoint_path = "checkpoint_embeddings.pkl"
     
-    generate_embeddings(db_path, batch_size, checkpoint_path)
+    generate_embeddings(db_path, batch_size, combined_pickle_path, checkpoint_path)

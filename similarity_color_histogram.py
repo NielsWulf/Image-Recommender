@@ -47,7 +47,7 @@ def generate_color_histograms(db_path: str, batch_size: int, combined_pickle_pat
     cursor.execute("SELECT uuid, file_path FROM images")
     rows = cursor.fetchall()
 
-    total_images = min(len(rows), 150000)
+    total_images = len(rows)
     progress_bar = tqdm(total=total_images, desc="Processing Images", unit="image")
 
     combined_data = {}
