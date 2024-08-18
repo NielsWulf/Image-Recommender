@@ -5,6 +5,9 @@ to find the best matches for one or more input images.
 
 ## Requirments
 
+```bash
+pip install -r requirements.txt
+```
 
 Python 3.x
 
@@ -35,10 +38,12 @@ UMAP
 
 ### 1) Setting up Database [meta_data.py]
 
-This script processes a directory of image files, extracts metadata (such as file name, path, image dimensions, etc.) 
+```bash
+python script_name.py
+```
+
+This script processes a directory of image files, extracts metadata (uuid, path, image dimensions,) 
 and stores this information in a SQLite database. 
-It is designed to process large data sets efficiently by processing images in batches, 
-logging errors and supporting checkpoints to continue processing in case of interruptions.
 
 Setup Database: The script will automatically set up the SQLite database and create the necessary table when run.
 
@@ -49,14 +54,12 @@ Configure Paths: Set the following paths in the script:
     checkpoint_path: The path for saving the checkpoint file.
     log_file: The path for saving the log file.
 
-Run the Script: Execute the script to begin processing images:
-
-```bash```
-python script_name.py
-
-
-The script will iterate through the image files in the specified directory,
-extract metadata, and insert it into the SQLite database.
+    default:
+    
+    root_directory = "E:/data/image_data"
+    database_path = "image_metadata.db"
+    checkpoint_path = "checkpoint.pkl"
+    log_file = "processing_log.txt"
 
 
 Notes
