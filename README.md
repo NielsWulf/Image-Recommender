@@ -1,11 +1,10 @@
-
-
 # Image-Recommender
 A Python-based image recommendation system based on a large image database. 
 This project uses various similarity metrics and dimensionality reduction techniques 
 to find the best matches for one or more input images.
 
 ## Requirments
+
 
 Python 3.x
 
