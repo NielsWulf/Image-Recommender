@@ -1,152 +1,119 @@
 
+Skip to content
+Navigation Menu
 
-# Image-Recommender
-A Python-based image recommendation system based on a large image database. 
-This project uses various similarity metrics and dimensionality reduction techniques 
-to find the best matches for one or more input images.
+    NielsWulf
+    /
+    Image-Recommender
 
-## Requirments
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
 
-Python 3.x
+    Insights
 
-NumPy
+Editing README.md in Image-Recommender
+Breadcrumbs
 
-pandas
+    Image-Recommender
 
-scikit-learn
+/
+in
+main
 
-OpenCV
-
-Pillow
-
-matplotlib
-
-Plotly
-
-tqdm
-
-SQLite
-
-PyTorch (for Deep Learning Embeddings)
-
-UMAP
-
-## Usage
-
-
-### 1) Setting up Database [meta_data.py]
-
-This script processes a directory of image files, extracts metadata (such as file name, path, image dimensions, etc.) 
-and stores this information in a SQLite database. 
-It is designed to process large data sets efficiently by processing images in batches, 
-logging errors and supporting checkpoints to continue processing in case of interruptions.
-
-Setup Database: The script will automatically set up the SQLite database and create the necessary table when run.
-
-Configure Paths: Set the following paths in the script:
-
-    root_directory: The root directory containing the images.
-    database_path: The path where the SQLite database will be saved.
-    checkpoint_path: The path for saving the checkpoint file.
-    log_file: The path for saving the log file.
-
-Run the Script: Execute the script to begin processing images:
-
-```bash```
-python script_name.py
-
-
-The script will iterate through the image files in the specified directory,
-extract metadata, and insert it into the SQLite database.
-
-
-Notes
-
-- The script skips files that cannot be read as images.
-- Errors during processing are logged to the specified log file.
-- The database is reset (table images is dropped and recreated) each time the script is run.
-
-### 2) Creating color histograms [similarities_color_histograms.py]
-
-This Python script processes a collection of images stored in a SQLite database, generates color histograms for each image, and saves the resulting data into a pickle file for further analysis.
-
-- **Image Preprocessing**: Reads and preprocesses images from the provided file paths.
-- **Color Histogram Calculation**: Computes a color histogram for each image using OpenCV.
-- **Batch Processing**: Efficiently processes images in batches to handle large datasets.
-- **Checkpointing**: Supports resuming from the last processed image using checkpoint files.
-- **Pickle Data Storage**: Stores the generated color histograms in a pickle file for easy retrieval.
-
-Run the Script: Execute the script to generate color histograms for your images.
-
-```bash```
-python generate_color_histograms.py
-
-Checkpoints: The script uses checkpoints to resume from the last processed image in case of interruption. The checkpoints are saved in a file named checkpoint_histograms.pkl.
-
-preprocess_image(image_path: str) -> np.ndarray:
-
-Reads and preprocesses an image from the provided file path.
-
-calculate_histogram(image: np.ndarray) -> np.ndarray:
-
-calculates a color histogram for the given image using 16 bins for each color channel (RGB).
-
-generate_color_histograms(db_path: str, batch_size: int, combined_pickle_path: str, checkpoint_path: str):
-
-Connects to the SQLite database, retrieves image paths, and generates color histograms in batches. The results are saved in a combined_color_histograms.pkl file, and progress is tracked using checkpoints.
-
-The batchsize might be adjusted from 500
-
-### 3) Creating Image Embeddings [similarities_embeddings.py]
-
-This Python script processes a collection of images stored in a SQLite database, generates embeddings for each image using a pre-trained ResNet model, and saves the resulting data into a pickle file for further analysis.
-
-- **Image Preprocessing**: Reads and preprocesses images from the provided file paths, including resizing and normalizing them for input into a ResNet model.
-- **Embedding Generation**: Uses a pre-trained ResNet-50 model (from torchvision) to extract embeddings for each image.
-- **Batch Processing**: Efficiently processes images in batches to handle large datasets.
-- **Checkpointing**: Supports resuming from the last processed image using checkpoint files.
-- **Pickle Data Storage**: Stores the generated embeddings in a pickle file for easy retrieval.
-
-Run the Script: Execute the script to generate embeddings for your images.
-
-```bash```
-python generate_embeddings.py
-
-Checkpoints: The script uses checkpoints to resume from the last processed image in case of interruption. The checkpoints are saved in a file named checkpoint_embeddings.pkl.
-
-Function Details:
-
-preprocess_image(image, preprocess, device) -> torch.Tensor:
-Reads and preprocesses an image from the provided file path, 
-applying the necessary transformations to make it compatible with the ResNet model.
-
-generate_embeddings(db_path: str, batch_size: int, combined_pickle_path: str, checkpoint_path: str):
-Connects to the SQLite database, retrieves image paths, and generates embeddings in batches using the ResNet-50 model. The results are saved in a combined_embeddings.pkl file, and progress is tracked using checkpoints.
-
-
-### 4) Dimensionality Reduction with Incremental and Kernel PCA [pca_similarity.py]
-
-```bash
-python dimensionality_reduction.py
-```
-
-pathes and parameters: 
-
-
-    embeddings_pickle_path: Path to the pickle file containing the original embeddings.
-    
-    pca_pickle_path: Path where the Incremental PCA reduced embeddings will be saved.
-    
-    pca_model_path: Path to save the trained Incremental PCA model.
-    
-    kernel_pca_pickle_path: Path to save the Kernel PCA reduced embeddings.
-    
-    n_components_ipca: Number of components for Incremental PCA (default is 50).
-    
-    n_components_kpca: Number of components for Kernel PCA (default is 100).
-    
-    batch_size: Batch size for Incremental PCA (default is 10,000).
-    
+Indent mode
+Indent size
+Line wrap mode
+Editing README.md file contents
+Selection deleted
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
     kernel_pca_sample_size: Number of samples to use for Kernel PCA (default is 10,000).
 
 This Python script performs dimensionality reduction on a set of image embeddings using both Incremental PCA and Kernel PCA. The reduced embeddings are then saved to pickle files for further analysis.
@@ -198,7 +165,7 @@ Comparison Method: The similarity is measured using cosine similarity, which is 
 
 Top N Results: Modify the top_n parameter to control how many of the most similar images are returned and displayed.
 
-## Results from Embeddings
+## Resluts from Embeddings
 
 ![grafik](https://github.com/user-attachments/assets/0ab82704-fb16-4b74-866b-ff1e8d5c8f0c)
 
@@ -217,7 +184,15 @@ Execute the script to compute the embedding of an input image, apply PCA, and fi
 
 
 
-## Results for PCA Embeddings: 
+## Results for PCA Embeddings 75 dimensions: 
 
 
-![grafik](https://github.com/user-attachments/assets/19f24fc5-2478-4101-8b63-969c08cfa3d7)
+![grafik](https://github.com/user-attachments/assets/713ba37a-a117-484f-a0a8-a8086236dc9d)
+
+
+
+## Results for PCA Embeddings 100 dimensions: 
+
+![grafik](https://github.com/user-attachments/assets/44d216ea-9efb-41ee-a68f-1d1a3ecca1b9)
+
+
