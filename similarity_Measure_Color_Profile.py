@@ -6,6 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
+import time
+import cProfile
+import pstats
 
 
 # Load the histograms from the pickle file
@@ -51,7 +54,7 @@ def compute_average_histogram(image_paths):
 
 # Find the top similar images using parallel processing
 def find_top_color_similar_images(
-    target_hist, histograms, top_n=5, method="correlation", batch_size=500
+    target_hist, histograms, top_n=5, method="correlation", batch_size=150000
 ):
     all_uuids = list(histograms.keys())
     similarities = []
@@ -137,7 +140,11 @@ def main():
     ]  # Replace with your actual input image paths
     database_path = "image_metadata.db"
 
+    # Profiling: Load histograms
+    start_time = time.time()
     histograms = load_histograms(pickle_file)
+    end_time = time.time()
+    print(f"Loading histograms took {end_time - start_time:.4f} seconds")
 
     if len(input_image_paths) > 1:
         print(f"Computing average histogram for the new images: {input_image_paths}")
@@ -151,14 +158,29 @@ def main():
 
     methods = ["correlation"]  # , 'bhattacharyya', 'chi-square', 'intersection']
     for method in methods:
+        # Profiling: Find similar images
+        start_time = time.time()
         top_similar_uuids = find_top_color_similar_images(
             target_hist, histograms, top_n=5, method=method
         )
+        end_time = time.time()
+        print(
+            f"Finding top similar images using {method} method took {end_time - start_time:.4f} seconds"
+        )
+
         image_paths_dict = load_image_paths_from_db(database_path, top_similar_uuids)
         top_similar_image_paths = [image_paths_dict[uuid] for uuid in top_similar_uuids]
         print(f"Top similar images using {method} method: {top_similar_uuids}")
+
         plot_images(input_image_paths, top_similar_image_paths, method)
 
 
 if __name__ == "__main__":
+    profiler = cProfile.Profile()
+    profiler.enable()
+
     main()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats(10)  # Print top 10 functions by cumulative time

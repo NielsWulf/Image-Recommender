@@ -7,6 +7,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 import torch
 from torchvision import models, transforms
 from PIL import Image
+import time
+from concurrent.futures import ThreadPoolExecutor
+import cProfile
+import pstats
+
+# Timing Start
+start_time = time.time()
 
 # Load pre-trained ResNet model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -120,44 +127,74 @@ def plot_images(main_image_paths, top_similar_images_paths):
     plt.show()
 
 
-# Example usage
-input_images = [
-    "new_images/new_try2.jpg",
-    "new_images/turtle.jpg",
-]  # Paths to the input images
-cosine_similarities_path = (
-    "combined_embeddings.pkl"  # Path to precomputed dataset embeddings
-)
-database_path = "image_metadata.db"  # Path to the database
-batch_size = 1000  # Adjust batch size according to memory capacity
-multiple_inputs = len(input_images) > 1
+def main():
+    # Example usage
+    input_images = ["new_images/eye.jpg"]  # Paths to the input images
+    cosine_similarities_path = (
+        "combined_embeddings.pkl"  # Path to precomputed dataset embeddings
+    )
+    database_path = "image_metadata.db"  # Path to the database
+    batch_size = 150000  # Adjust batch size according to memory capacity
+    multiple_inputs = len(input_images) > 1
 
-# Compute embedding for the new image(s)
-if multiple_inputs:
-    print(f"Computing embeddings for the new images: {input_images}")
-    new_image_embedding = compute_multiple_embeddings(input_images, model)
-    print("Embeddings computed.")
-else:
-    print(f"Computing embedding for the new image: {input_images[0]}")
-    new_image_embedding = compute_embedding(input_images[0], model)
-    print("Embedding computed.")
+    # Start timing
+    compute_start_time = time.time()
 
-# Load embeddings in batches and find top similar images
-print("Finding top similar images...")
-embeddings_batches = load_embeddings_in_batches(cosine_similarities_path, batch_size)
-top_similar_images = find_top_similar_images(new_image_embedding, embeddings_batches)
-print(f"Top similar images: {top_similar_images}")
+    # Compute embedding for the new image(s)
+    if multiple_inputs:
+        print(f"Computing embeddings for the new images: {input_images}")
+        new_image_embedding = compute_multiple_embeddings(input_images, model)
+        print("Embeddings computed.")
+    else:
+        print(f"Computing embedding for the new image: {input_images[0]}")
+        new_image_embedding = compute_embedding(input_images[0], model)
+        print("Embedding computed.")
 
-# Load image paths from the database
-print("Loading image paths from the database...")
-image_paths_dict = load_image_paths_from_db(database_path, top_similar_images)
-print(f"Image paths loaded: {image_paths_dict}")
+    # End timing for embedding computation
+    print(f"Time for embedding computation: {time.time() - compute_start_time} seconds")
 
-# Get the paths for the similar images
-top_similar_images_paths = [image_paths_dict[uuid] for uuid in top_similar_images]
-print(f"Top similar images paths: {top_similar_images_paths}")
+    # Load embeddings in batches and find top similar images
+    print("Finding top similar images...")
+    find_start_time = time.time()
 
-# Plot the images
-print("Plotting images...")
-plot_images(input_images, top_similar_images_paths)
-print("Images plotted.")
+    embeddings_batches = load_embeddings_in_batches(
+        cosine_similarities_path, batch_size
+    )
+    top_similar_images = find_top_similar_images(
+        new_image_embedding, embeddings_batches
+    )
+    print(f"Top similar images: {top_similar_images}")
+
+    print(f"Time for finding similar images: {time.time() - find_start_time} seconds")
+
+    # Load image paths from the database
+    print("Loading image paths from the database...")
+    load_start_time = time.time()
+
+    image_paths_dict = load_image_paths_from_db(database_path, top_similar_images)
+    print(f"Image paths loaded: {image_paths_dict}")
+
+    print(f"Time for loading image paths: {time.time() - load_start_time} seconds")
+
+    # Get the paths for the similar images
+    top_similar_images_paths = [image_paths_dict[uuid] for uuid in top_similar_images]
+    print(f"Top similar images paths: {top_similar_images_paths}")
+
+    # Plot the images
+    print("Plotting images...")
+    plot_images(input_images, top_similar_images_paths)
+    print("Images plotted.")
+
+
+if __name__ == "__main__":
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    main()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats(10)  # Print top 10 functions by cumulative time
+
+    # Final timing print
+    print(f"Total script execution time: {time.time() - start_time} seconds")

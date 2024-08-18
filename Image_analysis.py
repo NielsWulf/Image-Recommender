@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from joblib import Parallel, delayed
 from PIL import Image
 import sqlite3
+import plotly.io as pio  # Import plotly.io for browser display
 
 
 # Load reduced embeddings from a pickle file
@@ -16,7 +17,7 @@ def load_pca_embeddings(file_path):
 
 
 # Apply UMAP for dimensionality reduction with parallel processing
-def apply_umap(embeddings, n_components=3, n_neighbors=15, min_dist=0.1):
+def apply_umap(embeddings, n_components=3, n_neighbors=12, min_dist=0.1):
     umap_model = umap.UMAP(
         n_components=n_components,
         n_neighbors=n_neighbors,
@@ -40,7 +41,7 @@ def plotly_3d_umap(embeddings, labels, title):
         color_continuous_scale="Spectral",
     )
     fig.update_traces(marker=dict(size=3))
-    fig.show()
+    pio.show(fig)  # Use plotly.io.show to open the plot in the browser
 
 
 # Example usage
@@ -57,11 +58,11 @@ print("Kernel PCA-reduced embeddings loaded.")
 # Visualize the data before clustering
 print("Visualizing data with 3D UMAP before clustering...")
 umap_embeddings, umap_model = apply_umap(
-    embeddings, n_components=3, n_neighbors=15, min_dist=0.01
+    embeddings, n_components=3, n_neighbors=12, min_dist=0.1
 )
 
 # Apply K-Means clustering
-n_clusters = 16  # Adjust the number of clusters as needed
+n_clusters = 12  # Adjust the number of clusters as needed
 print(f"Applying K-Means clustering with {n_clusters} clusters...")
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 kmeans_labels = kmeans.fit_predict(embeddings)

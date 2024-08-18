@@ -9,6 +9,12 @@ import torch
 from torchvision import models, transforms
 from PIL import Image
 import pickle
+import time
+import cProfile
+import pstats
+
+# Timing Start
+start_time = time.time()
 
 # Load pre-trained ResNet model
 model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
@@ -108,45 +114,74 @@ def plot_images(main_image_paths, top_similar_images_paths):
     plt.show()
 
 
-# Example usage
-input_image_paths = ["new_images/eye.jpg"]  # Paths to the input images
-pca_embeddings_path = "pca_embeddings.pkl"  # pca_embeddings_image_analysis.pkl  (Besser)    # Path to PCA-reduced dataset embeddings
-pca_model_path = "pca_model.pkl"  # pca_model_image_analysis.pkl  (Besser)  # Path to the saved PCA model
-database_path = "image_metadata.db"  # Path to the database
-batch_size = 1000  # Adjust batch size according to memory capacity
+def main():
+    # Example usage
+    input_image_paths = ["new_images/eye.jpg"]  # Paths to the input images
+    pca_embeddings_path = "pca_embeddings_image_analysis_100.pkl"  # Path to PCA-reduced dataset embeddings
+    pca_model_path = "pca_model_image_analysis_100.pkl"  # Path to the saved PCA model
+    database_path = "image_metadata.db"  # Path to the database
+    batch_size = 150000  # Adjust batch size according to memory capacity
 
-# Load PCA model
-with open(pca_model_path, "rb") as f:
-    pca = pickle.load(f)
+    # Load PCA model
+    with open(pca_model_path, "rb") as f:
+        pca = pickle.load(f)
 
-# Compute embedding for the new image(s)
-if len(input_image_paths) > 1:
-    print(f"Computing embeddings for the new images: {input_image_paths}")
-    new_image_embedding = compute_multiple_embeddings(input_image_paths, model)
-    print("Embeddings computed.")
-else:
-    print(f"Computing embedding for the new image: {input_image_paths[0]}")
-    new_image_embedding = compute_embedding(input_image_paths[0], model)
-    print("Embedding computed.")
+    # Compute embedding for the new image(s)
+    compute_start_time = time.time()
 
-# Load embeddings in batches and find top similar images
-print("Finding top similar images...")
-embeddings_batches = load_embeddings_in_batches(pca_embeddings_path, batch_size)
-top_similar_images = find_top_similar_images(
-    new_image_embedding, embeddings_batches, pca
-)
-print(f"Top similar images: {top_similar_images}")
+    if len(input_image_paths) > 1:
+        print(f"Computing embeddings for the new images: {input_image_paths}")
+        new_image_embedding = compute_multiple_embeddings(input_image_paths, model)
+        print("Embeddings computed.")
+    else:
+        print(f"Computing embedding for the new image: {input_image_paths[0]}")
+        new_image_embedding = compute_embedding(input_image_paths[0], model)
+        print("Embedding computed.")
 
-# Load image paths from the database
-print("Loading image paths from the database...")
-image_paths_dict = load_image_paths_from_db(database_path, top_similar_images)
-print(f"Image paths loaded: {image_paths_dict}")
+    print(f"Time for embedding computation: {time.time() - compute_start_time} seconds")
 
-# Get the paths for the similar images
-top_similar_images_paths = [image_paths_dict[uuid] for uuid in top_similar_images]
-print(f"Top similar images paths: {top_similar_images_paths}")
+    # Load embeddings in batches and find top similar images
+    find_start_time = time.time()
+    print("Finding top similar images...")
 
-# Plot the images
-print("Plotting images...")
-plot_images(input_image_paths, top_similar_images_paths)
-print("Images plotted.")
+    embeddings_batches = load_embeddings_in_batches(pca_embeddings_path, batch_size)
+    top_similar_images = find_top_similar_images(
+        new_image_embedding, embeddings_batches, pca
+    )
+    print(f"Top similar images: {top_similar_images}")
+
+    print(f"Time for finding similar images: {time.time() - find_start_time} seconds")
+
+    # Load image paths from the database
+    load_start_time = time.time()
+    print("Loading image paths from the database...")
+
+    image_paths_dict = load_image_paths_from_db(database_path, top_similar_images)
+    print(f"Image paths loaded: {image_paths_dict}")
+
+    print(f"Time for loading image paths: {time.time() - load_start_time} seconds")
+
+    # Get the paths for the similar images
+    top_similar_images_paths = [image_paths_dict[uuid] for uuid in top_similar_images]
+    print(f"Top similar images paths: {top_similar_images_paths}")
+
+    # Plot the images
+    plot_images_start_time = time.time()
+    print("Plotting images...")
+    plot_images(input_image_paths, top_similar_images_paths)
+    print("Images plotted.")
+    print(f"Time for plotting images: {time.time() - plot_images_start_time} seconds")
+
+
+if __name__ == "__main__":
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    main()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats(10)  # Print top 10 functions by cumulative time
+
+    # Final timing print
+    print(f"Total script execution time: {time.time() - start_time} seconds")
