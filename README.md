@@ -91,29 +91,13 @@ The batchsize might be adjusted from 500
 
 ### 3) Creating Image Embeddings [similarities_embeddings.py]
 
-This Python script processes a collection of images stored in a SQLite database, generates embeddings for each image using a pre-trained ResNet model, and saves the resulting data into a pickle file for further analysis.
+This Python script generates embeddings for each image using a pre-trained ResNet model, and saves the resulting data into a pickle file for further analysis.
 
-- **Image Preprocessing**: Reads and preprocesses images from the provided file paths, including resizing and normalizing them for input into a ResNet model.
-- **Embedding Generation**: Uses a pre-trained ResNet-50 model (from torchvision) to extract embeddings for each image.
-- **Batch Processing**: Efficiently processes images in batches to handle large datasets.
-- **Checkpointing**: Supports resuming from the last processed image using checkpoint files.
-- **Pickle Data Storage**: Stores the generated embeddings in a pickle file for easy retrieval.
 
-Run the Script: Execute the script to generate embeddings for your images.
-
-```bash```
+```bash
 python generate_embeddings.py
+```
 
-Checkpoints: The script uses checkpoints to resume from the last processed image in case of interruption. The checkpoints are saved in a file named checkpoint_embeddings.pkl.
-
-Function Details:
-
-preprocess_image(image, preprocess, device) -> torch.Tensor:
-Reads and preprocesses an image from the provided file path, 
-applying the necessary transformations to make it compatible with the ResNet model.
-
-generate_embeddings(db_path: str, batch_size: int, combined_pickle_path: str, checkpoint_path: str):
-Connects to the SQLite database, retrieves image paths, and generates embeddings in batches using the ResNet-50 model. The results are saved in a combined_embeddings.pkl file, and progress is tracked using checkpoints.
 
 
 ### 4) Dimensionality Reduction with Incremental and Kernel PCA [pca_similarity.py]
