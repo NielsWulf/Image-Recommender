@@ -72,27 +72,22 @@ Notes
 
 ### 2) Creating color histograms [similarities_color_histograms.py]
 
+
+
 This Python script generates color histograms for each image, and saves the resulting data into a pickle file for further analysis.
+
 
 ```bash
 python generate_color_histograms.py
 ```
 
-Checkpoints: The script uses checkpoints to resume from the last processed image in case of interruption. The checkpoints are saved in a file named checkpoint_histograms.pkl.
-
-preprocess_image(image_path: str) -> np.ndarray:
-
-Reads and preprocesses an image from the provided file path.
-
-calculate_histogram(image: np.ndarray) -> np.ndarray:
-
-calculates a color histogram for the given image using 16 bins for each color channel (RGB).
-
-generate_color_histograms(db_path: str, batch_size: int, combined_pickle_path: str, checkpoint_path: str):
-
 Connects to the SQLite database, retrieves image paths, and generates color histograms in batches. The results are saved in a combined_color_histograms.pkl file, and progress is tracked using checkpoints.
 
 The batchsize might be adjusted from 500
+
+
+
+
 
 ### 3) Creating Image Embeddings [similarities_embeddings.py]
 
