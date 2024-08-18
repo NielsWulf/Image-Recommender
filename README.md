@@ -68,20 +68,15 @@ Notes
 - Errors during processing are logged to the specified log file.
 - The database is reset (table images is dropped and recreated) each time the script is run.
 
+
+
 ### 2) Creating color histograms [similarities_color_histograms.py]
 
-This Python script processes a collection of images stored in a SQLite database, generates color histograms for each image, and saves the resulting data into a pickle file for further analysis.
+This Python script generates color histograms for each image, and saves the resulting data into a pickle file for further analysis.
 
-- **Image Preprocessing**: Reads and preprocesses images from the provided file paths.
-- **Color Histogram Calculation**: Computes a color histogram for each image using OpenCV.
-- **Batch Processing**: Efficiently processes images in batches to handle large datasets.
-- **Checkpointing**: Supports resuming from the last processed image using checkpoint files.
-- **Pickle Data Storage**: Stores the generated color histograms in a pickle file for easy retrieval.
-
-Run the Script: Execute the script to generate color histograms for your images.
-
-```bash```
+```bash
 python generate_color_histograms.py
+```
 
 Checkpoints: The script uses checkpoints to resume from the last processed image in case of interruption. The checkpoints are saved in a file named checkpoint_histograms.pkl.
 
