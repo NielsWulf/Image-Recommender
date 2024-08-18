@@ -37,8 +37,8 @@ UMAP
 ### 1) Setting up Database [meta_data.py]
 
 This script processes a directory of image files, extracts metadata (such as file name, path, image dimensions, etc.) 
-and stores this information in a SQLite database. I
-t is designed to process large data sets efficiently by processing images in batches, 
+and stores this information in a SQLite database. 
+It is designed to process large data sets efficiently by processing images in batches, 
 logging errors and supporting checkpoints to continue processing in case of interruptions.
 
 Setup Database: The script will automatically set up the SQLite database and create the necessary table when run.
@@ -59,8 +59,6 @@ python script_name.py
 The script will iterate through the image files in the specified directory,
 extract metadata, and insert it into the SQLite database.
 
-Resume Processing: If the script is interrupted, rerun it, 
-and it will resume processing from the last saved checkpoint.
 
 Notes
 
@@ -162,7 +160,7 @@ This Python script performs dimensionality reduction on a set of image embedding
 
 ### 5) Similarity Measures
 
-similarity_Measure_Color_Profile.py : 
+#### similarity_Measure_Color_Profile.py : 
 
 ```bash
 similarity_Measure_Color_Profile.py
@@ -176,22 +174,39 @@ We reccomend using correlation or Bhattacharyya
 
 
 
+## Results from correlation
 
-similarity_Measure_Embeddings.py: 
+
+![grafik](https://github.com/user-attachments/assets/0cc2ae16-7ac9-4118-9721-e9d25cb55605)
+
+
+## Results from Bhattacharyya
+
+
+![grafik](https://github.com/user-attachments/assets/82a0aa8d-473e-4076-abdc-29c17ca8c8d4)
+
+
+#### similarity_Measure_Embeddings.py: 
 
 ```bash
 similarity_Measure_Embeddings.py
 ```
 
-This Python script uses a pre-trained ResNet model to generate image embeddings and compares them to a database of precomputed embeddings to find the most visually similar images. The script is designed to efficiently handle large image datasets and provides an easy-to-use interface for visual similarity searches.
+This Python script uses a pre-trained ResNet model to generate image embeddings for the input and compares them to a database of precomputed embeddings to find the most visually similar images. 
 
 Comparison Method: The similarity is measured using cosine similarity, which is ideal for comparing high-dimensional vectors like image embeddings.
 
 Top N Results: Modify the top_n parameter to control how many of the most similar images are returned and displayed.
 
+## Resluts from Embeddings
+
+![grafik](https://github.com/user-attachments/assets/0ab82704-fb16-4b74-866b-ff1e8d5c8f0c)
 
 
-similarity_Measure_PCA_Embeddings.py:
+
+
+
+#### similarity_Measure_PCA_Embeddings.py:
 
 ```bash
 similarity_Measure_PCA_Embeddings.py
@@ -199,5 +214,10 @@ similarity_Measure_PCA_Embeddings.py
 
 Execute the script to compute the embedding of an input image, apply PCA, and find the most similar images in the dataset that was also dimension reduced.
 
-Top N Results: Modify the top_n parameter to control how many of the most similar images are returned and displayed.
 
+
+
+## Results for PCA Embeddings: 
+
+
+![grafik](https://github.com/user-attachments/assets/19f24fc5-2478-4101-8b63-969c08cfa3d7)
