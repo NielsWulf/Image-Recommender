@@ -140,12 +140,17 @@ This Python script performs dimensionality reduction on a set of image embedding
 
 ```bash
 similarity_Measure_Color_Profile.py
+
+similarity_Measure_Embeddings.py
 ```
 
 This Python script compares the color histograms of a target image (or a set of images) against a large collection of precomputed histograms stored in a pickle file. It identifies and displays the most visually similar images based on the selected comparison method.
 
 
-Comparison Method: You can change the method parameter in compare_histograms to use different similarity metrics (e.g., correlation, chi-square, intersection, and Bhattacharyya).
+Comparison Method: You can change the method parameter in compare_histograms to use different similarity metrics (e.g., correlation, chi-square, intersection, and Bhattacharyya). You can change the method by adjusting line 22 :
+
+def compare_histograms(hist1, hist2, method="correlation"):
+
 We reccomend using correlation or Bhattacharyya
 
 
