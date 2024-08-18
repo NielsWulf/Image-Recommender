@@ -198,7 +198,7 @@ Comparison Method: The similarity is measured using cosine similarity, which is 
 
 Top N Results: Modify the top_n parameter to control how many of the most similar images are returned and displayed.
 
-## Resluts from Embeddings
+## Results from Embeddings
 
 ![grafik](https://github.com/user-attachments/assets/0ab82704-fb16-4b74-866b-ff1e8d5c8f0c)
 
