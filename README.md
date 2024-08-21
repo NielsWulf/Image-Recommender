@@ -39,7 +39,7 @@ UMAP
 ### 1) Setting up Database [meta_data.py]
 
 ```bash
-python script_name.py
+python meta_data.py
 ```
 
 This script processes a directory of image files, extracts metadata (uuid, path, image dimensions,) 
